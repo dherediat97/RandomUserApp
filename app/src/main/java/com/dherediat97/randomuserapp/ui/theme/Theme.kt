@@ -14,6 +14,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 private val LightColorScheme = darkColorScheme(
     primary = Black,
@@ -30,6 +32,7 @@ private val DarkColorScheme = lightColorScheme(
 @Composable
 fun RandomUserAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    navController: NavController = rememberNavController(),
     content: @Composable () -> Unit
 ) {
     val colorScheme = LightColorScheme

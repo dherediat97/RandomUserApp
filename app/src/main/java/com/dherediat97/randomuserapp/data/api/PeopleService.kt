@@ -11,6 +11,7 @@ interface PeopleService {
     @GET("api/")
     suspend fun getMultiplePerson(
         @Query("results") results: Number,
+        @Query("nat") nat: String = "es",
 //        @Query("page") page: Number? = 1,
 //        @Query("seed") seed: String? = ""
     ): ResponseMultiplePeople
