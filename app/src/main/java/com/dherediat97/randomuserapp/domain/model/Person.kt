@@ -1,6 +1,6 @@
 package com.dherediat97.randomuserapp.domain.model
 
-import android.graphics.Picture
+
 import android.location.Location
 
 data class Person(

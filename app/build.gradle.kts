@@ -4,15 +4,17 @@ plugins {
 }
 var koinVersion = "3.5.3"
 var retrofitVersion = "2.9.0"
+var okHttpInterceptorVersion = "4.12.0"
+var coilComposeVersion = "2.5.0"
 
 android {
     namespace = "com.dherediat97.randomuserapp"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.dherediat97.randomuserapp"
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -72,6 +74,7 @@ dependencies {
 
     //Koin
     implementation("io.insert-koin:koin-core:$koinVersion")
+    implementation("io.insert-koin:koin-android:$koinVersion")
     implementation("io.insert-koin:koin-androidx-compose:$koinVersion")
 
     //Retrofit
@@ -79,4 +82,10 @@ dependencies {
 
     //Converter GSON
     implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
+
+    //OkHttp3 Logging Interceptor
+    implementation("com.squareup.okhttp3:logging-interceptor:$okHttpInterceptorVersion")
+
+    //Coil
+    implementation("io.coil-kt:coil-compose:$coilComposeVersion")
 }
