@@ -31,20 +31,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.dherediat97.randomuserapp.domain.model.Person
 import com.dherediat97.randomuserapp.ui.theme.Black
 import com.dherediat97.randomuserapp.ui.theme.Grey
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun PersonListScreen(
-    navController: NavController,
     paddingValues: PaddingValues = PaddingValues(),
     viewModel: PersonListViewModel = koinViewModel(),
+    onNavigatePerson: (Person) -> Unit,
 ) {
 
     LaunchedEffect(Unit) {
@@ -102,7 +100,7 @@ fun PersonListScreen(
                             )
                         }
                         IconButton(onClick = {
-                            navController.navigate("personDetail")
+                            onNavigatePerson(person)
                         }) {
                             Icon(
                                 Icons.Rounded.KeyboardArrowRight,

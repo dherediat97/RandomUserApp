@@ -15,4 +15,10 @@ interface PeopleService {
 //        @Query("page") page: Number? = 1,
 //        @Query("seed") seed: String? = ""
     ): ResponseMultiplePeople
+
+    @GET("api/")
+    suspend fun getSinglePerson(
+        @Query("uuid") uuid: String,
+        @Query("results") results: Number = 1,
+    ): ResponseMultiplePeople
 }

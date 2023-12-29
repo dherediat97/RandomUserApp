@@ -11,4 +11,9 @@ class PeopleRepository {
         val responseMultiplePeople = peopleService.getMultiplePerson(results)
         return responseMultiplePeople.results
     }
+
+    suspend fun getSinglePerson(name: String): Person {
+        val responseSinglePerson = peopleService.getSinglePerson(name)
+        return responseSinglePerson.results[0]
+    }
 }

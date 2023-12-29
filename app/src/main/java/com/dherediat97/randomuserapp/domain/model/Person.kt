@@ -1,16 +1,14 @@
 package com.dherediat97.randomuserapp.domain.model
 
 
-import android.location.Location
-
 data class Person(
     val gender: String,
     val name: Name,
-    val location: Location,
+    val location: Location?,
     val email: String,
-//    val login: Login,
+    val login:  Login,
 //    val dob: Dob,
-//    val registered: Registered,
+    val registered: Registered,
     val phone: String,
     val cell: String,
 //    val id: Id,

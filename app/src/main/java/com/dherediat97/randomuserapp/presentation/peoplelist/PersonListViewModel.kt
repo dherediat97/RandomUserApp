@@ -8,17 +8,24 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
 class PersonListViewModel : ViewModel() {
+
+    //People Repository
     private val peopleRepository = PeopleRepository()
-    private val _state = MutableStateFlow(PersonUiState())
-    val uiState: StateFlow<PersonUiState>
+
+    //Internal UiState
+    private val _state = MutableStateFlow(PersonsUiState())
+    //Public UiState
+    val uiState: StateFlow<PersonsUiState>
         get() = _state
 
 
+    //Fetch multiple persons using a results size number
     suspend fun fetchMultiplePersons(results: Number) {
         runCatching {
             _state.update { it.copy(isLoading = true) }
 
             val persons = peopleRepository.getMultiplePerson(results = results)
+
             _state.update {
                 it.copy(personList = persons, isLoading = false)
             }
@@ -29,7 +36,8 @@ class PersonListViewModel : ViewModel() {
     }
 
 
-    data class PersonUiState(
+    //Internal data class for person list data
+    data class PersonsUiState(
         val personList: List<Person> = emptyList(),
         val isLoading: Boolean = false,
         val isError: Boolean = false

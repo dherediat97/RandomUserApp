@@ -92,4 +92,7 @@ dependencies {
 
     //Coil
     implementation("io.coil-kt:coil-compose:$coilComposeVersion")
+
+    //GoogleMaps Compose
+    implementation("org.osmdroid:osmdroid-android:6.1.4")
 }
