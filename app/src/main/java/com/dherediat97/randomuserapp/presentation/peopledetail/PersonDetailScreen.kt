@@ -8,6 +8,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountCircle
@@ -28,6 +30,7 @@ import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.Female
 import androidx.compose.material.icons.rounded.Male
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Phone
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -36,22 +39,25 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color.Companion.Gray
+import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.Color.Companion.LightGray
+import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.Yellow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,7 +84,7 @@ fun PersonDetailScreen(
 ) {
     viewModel.savedStateHandle["personEmail"] = personEmail
     val person by remember { mutableStateOf(viewModel.getUser()) }
-    AppBar(person = person, backToList)
+    ContainerPersonDetailScreen(person = person, backToList)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -121,7 +127,7 @@ fun CustomTextField(label: String, name: String, icon: ImageVector) {
 }
 
 @Composable
-fun ContainerPersonDetails(person: Person) {
+fun PersonDetails(person: Person) {
     val resources = LocalContext.current.resources
     val name by remember { mutableStateOf("${person.name.first} ${person.name.last}") }
     val gender by remember { mutableStateOf(if (person.gender == "male") "Hombre" else "Mujer") }
@@ -211,92 +217,113 @@ fun ContainerPersonDetails(person: Person) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppBar(person: Person, backToList: () -> Unit) {
-    Scaffold(topBar = {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                IconButton(onClick = {
-                    backToList()
-                }) {
-                    Icon(
-                        Icons.Rounded.ArrowBack,
-                        tint = White,
-                        contentDescription = "icon back button",
+fun ContainerPersonDetailScreen(person: Person, backToList: () -> Unit) {
+    Scaffold(
+        topBar = {
+            Box(modifier = Modifier.fillMaxWidth()) {
+
+                Image(
+                    painter = painterResource(id = R.drawable.background),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxSize(0.25f)
+                )
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp, start = 16.dp)
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .padding(end = 16.dp)
-                            .size(28.dp)
+                            .fillMaxWidth()
+                            .padding(top = 60.dp)
+                    ) {
+                        IconButton(onClick = {
+                            backToList()
+                        }) {
+                            Icon(
+                                Icons.Rounded.ArrowBack,
+                                tint = White,
+                                contentDescription = "icon back button",
+                                modifier = Modifier
+                                    .padding(end = 16.dp)
+                                    .size(28.dp)
+                            )
+
+                        }
+                        Text(
+                            "${person.name.first} ${person.name.last}".uppercase(),
+                            color = White,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Icon(
+                            Icons.Rounded.MoreVert,
+                            contentDescription = "icon options menu",
+                            tint = White,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .size(28.dp)
+                                .padding(start = 86.dp)
+
+                        )
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 180.dp, start = 32.dp, bottom = 12.dp)
+                ) {
+                    Image(
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit,
+                        painter = rememberAsyncImagePainter(
+                            model = ImageRequest
+                                .Builder(LocalContext.current)
+                                .data(person.picture.large)
+                                .crossfade(true)
+                                .build()
+                        ),
+                        modifier = Modifier
+                            .height(80.dp)
+                            .width(80.dp)
+                            .clip(CircleShape)
                     )
-                    Text(
-                        person.name.first,
-                        color = White,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
+                    Spacer(modifier = Modifier.width(200.dp))
+
+                    Icon(
+                        Icons.Rounded.CameraAlt,
+                        tint = Black,
+                        contentDescription = "icon camera button",
+                        modifier = Modifier
+                            .padding(end = 16.dp, top = 62.dp)
+                            .size(24.dp)
                     )
+                    Icon(
+                        Icons.Rounded.Edit,
+                        tint = Black,
+                        contentDescription = "icon edit button",
+                        modifier = Modifier
+                            .padding(end = 16.dp, top = 62.dp)
+                            .size(24.dp)
+                    )
+
                 }
             }
-
-            Image(
-                painter = painterResource(id = R.drawable.background),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 220.dp, start = 16.dp)
+        }, content = { contentPadding ->
+            Box(
+                modifier = Modifier.padding(
+                    top = contentPadding.calculateTopPadding(),
+                    bottom = 16.dp
+                )
             ) {
-                Image(
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    painter = rememberAsyncImagePainter(
-                        model = ImageRequest
-                            .Builder(LocalContext.current)
-                            .data(person.picture.large)
-                            .crossfade(true)
-                            .build()
-                    ),
-                    modifier = Modifier
-                        .height(80.dp)
-                        .width(80.dp)
-                        .clip(CircleShape)
-                )
-                Spacer(modifier = Modifier.width(200.dp))
-                Icon(
-                    Icons.Rounded.CameraAlt,
-                    tint = Black,
-                    contentDescription = "icon camera button",
-                    modifier = Modifier
-                        .padding(start = 0.dp, end = 16.dp, top = 62.dp)
-                        .size(24.dp)
-                )
-                Icon(
-                    Icons.Rounded.Edit,
-                    tint = Black,
-                    contentDescription = "icon edit button",
-                    modifier = Modifier
-                        .padding(start = 8.dp, end = 0.dp, top = 62.dp)
-                        .size(24.dp)
-                )
-
+                PersonDetails(person = person)
             }
-
-        }
-    }, content = { contentPadding ->
-        Box(
-            modifier = Modifier.padding(
-                top = contentPadding.calculateTopPadding(),
-                bottom = 16.dp
-            )
-        ) {
-            ContainerPersonDetails(person = person)
-        }
-    })
+        })
 }
