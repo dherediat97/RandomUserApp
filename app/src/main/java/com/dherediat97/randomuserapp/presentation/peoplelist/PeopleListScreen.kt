@@ -1,5 +1,6 @@
 package com.dherediat97.randomuserapp.presentation.peoplelist
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,11 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,14 +41,13 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import coil.compose.AsyncImagePainter
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.SubcomposeAsyncImageContent
 import com.dherediat97.randomuserapp.domain.model.Person
 import com.dherediat97.randomuserapp.ui.theme.Black
 import com.dherediat97.randomuserapp.ui.theme.Grey
@@ -57,12 +59,14 @@ fun PersonListScreen(
     viewModel: PersonListViewModel,
     onNavigatePerson: (Person) -> Unit,
 ) {
+    val data by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.fetchMultiplePersons(10)
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(listState.canScrollForward) {
+        viewModel.fetchMultiplePersons()
     }
 
-    val data by viewModel.uiState.collectAsState()
     Scaffold(
         modifier = Modifier.padding(top = 24.dp),
         topBar = {
@@ -89,7 +93,7 @@ fun PersonListScreen(
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text("CONTACTOS", fontWeight = FontWeight.Bold)
+                    Text("CONTACTOS", fontWeight = FontWeight.Bold, fontSize = 24.sp)
                 })
         },
         content = { innerPadding ->
@@ -101,12 +105,14 @@ fun PersonListScreen(
             ) {
                 if (!data.isLoading) {
                     val items by remember { mutableStateOf(data.personList) }
+
                     LazyColumn(
                         modifier = Modifier.fillMaxWidth(),
+                        state = listState,
                         contentPadding = PaddingValues(
-                            start = 16.dp,
+                            start = 24.dp,
                             top = paddingValues.calculateTopPadding(),
-                            end = 16.dp,
+                            end = 24.dp,
                             bottom = paddingValues.calculateBottomPadding()
                         ),
 
@@ -114,7 +120,10 @@ fun PersonListScreen(
                             items(items) { person ->
                                 Row(
                                     modifier = Modifier
-                                        .padding(top = 24.dp)
+                                        .padding(top = 22.dp)
+                                        .clickable {
+                                            onNavigatePerson(person)
+                                        }
                                         .drawBehind {
                                             val y = size.height
                                             drawLine(
@@ -127,18 +136,23 @@ fun PersonListScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.Center
                                 ) {
-                                    AsyncImage(
-                                        model = ImageRequest.Builder(LocalContext.current)
-                                            .data(person.picture.large)
-                                            .crossfade(true)
-                                            .build(),
+                                    SubcomposeAsyncImage(
+                                        model = person.picture.medium,
                                         contentDescription = "person thumbnail",
                                         contentScale = ContentScale.Fit,
                                         modifier = Modifier
                                             .height(80.dp)
                                             .width(80.dp)
                                             .clip(CircleShape)
-                                    )
+                                    ) {
+                                        val state = painter.state
+                                        if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
+                                            CircularProgressIndicator()
+                                        } else {
+                                            SubcomposeAsyncImageContent()
+                                        }
+
+                                    }
                                     Column(
                                         modifier = Modifier
                                             .padding(start = 12.dp)
@@ -166,9 +180,16 @@ fun PersonListScreen(
                                         )
                                     }
                                 }
-
                             }
                         })
+                } else {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
             }
         })

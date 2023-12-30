@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.view.MotionEvent
 import android.view.View
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -76,36 +77,8 @@ fun PersonDetailScreen(
     personEmail: String
 ) {
     viewModel.savedStateHandle["personEmail"] = personEmail
-//    val person = Person(
-//        name = Name("Doña", "Laura", last = "Navarro Martínez"),
-//        cell = "1234545",
-//        email = "lauranavarro@gmail.com",
-//        gender = "male",
-//        login = Login(UUID.randomUUID().toString(), "dheredia"),
-//        nat = "es",
-//        phone = "+34 665587115",
-//        location = Location(
-//            street = Street(1, "Calle Sin Nombre"),
-//            city = "Córdoba",
-//            coordinates = Coordinates("37.893605897259505", "-4.753414838528029"),
-//            country = "España",
-//            state = "Andalucia",
-//            postCode = "14014",
-//            timezone = Timezone("+1", "Europe/Madrid")
-//        ),
-//        registered = Registered("2018-05-11T05:51:59.390Z", age = 16),
-//        picture = Picture(
-//            "https://randomuser.me/api/portraits/women/60.jpg",
-//            "https://randomuser.me/api/portraits/women/60.jpg",
-//            "https://randomuser.me/api/portraits/women/60.jpg"
-//        )
-//    )
-
     val person by remember { mutableStateOf(viewModel.getUser()) }
-    person?.let { person ->
-        AppBar(person = person, backToList)
-    }
-
+    AppBar(person = person, backToList)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -128,8 +101,8 @@ fun CustomTextField(label: String, name: String, icon: ImageVector) {
         textStyle = TextStyle(color = Black),
         onValueChange = { },
         modifier = Modifier
-            .padding(top = 16.dp, bottom = 8.dp)
-            .height(55.dp)
+            .padding(top = 4.dp, bottom = 16.dp)
+            .height(60.dp)
             .drawBehind {
                 val y = size.height
                 drawLine(
@@ -167,7 +140,9 @@ fun ContainerPersonDetails(person: Person) {
             CustomTextField("Nombre y apellidos", name, Icons.Rounded.AccountCircle)
             CustomTextField("Email", person.email, Icons.Rounded.Email)
             CustomTextField(
-                "Género", gender, if (gender == "male") Icons.Rounded.Male else Icons.Rounded.Female
+                "Género",
+                gender,
+                if (person.gender == "male") Icons.Rounded.Male else Icons.Rounded.Female
             )
             dateRegistered?.let { CustomTextField("Fecha registro", it, Icons.Rounded.DateRange) }
             CustomTextField("Teléfono", person.phone, Icons.Rounded.Phone)
@@ -178,10 +153,17 @@ fun ContainerPersonDetails(person: Person) {
                 fontSize = 14.sp,
                 color = Gray
             )
-
-            val coordinates = GeoPoint(
+            //Because the API is 100% random values, some coordinates are outside the natural range
+            var personCoordinates = GeoPoint(
                 person.location!!.coordinates.latitude.toDouble(),
                 person.location.coordinates.longitude.toDouble()
+            )
+
+            //for that my workaround is a constant(not dynamic-person value) coordinates value
+            // for this function
+            val coordinates = GeoPoint(
+                40.41695935526469,
+                -3.703523643237908
             )
             Row {
                 MapComposable(modifier = Modifier
@@ -191,7 +173,6 @@ fun ContainerPersonDetails(person: Person) {
                     onLoad = { mapView ->
                         mapView.isVerticalMapRepetitionEnabled = false
                         mapView.isHorizontalMapRepetitionEnabled = false
-                        mapView.setExpectedCenter(coordinates)
                         mapView.setOnTouchListener(object : View.OnTouchListener {
                             override fun onTouch(p0: View?, event: MotionEvent?): Boolean {
                                 return true
@@ -199,30 +180,29 @@ fun ContainerPersonDetails(person: Person) {
                         })
                         mapView.setMultiTouchControls(false)
                         mapView.setBuiltInZoomControls(false)
-                        mapView.controller.zoomTo(16, 0)
+                        val marker = Marker(mapView)
+                        marker.position = coordinates
+                        mapView.setExpectedCenter(coordinates)
                         mapView.controller.setCenter(coordinates)
-                        runCatching {
-                            val marker = Marker(mapView)
-                            marker.position = coordinates
-                            val d =
-                                ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, null)
-                            val bitmap = d?.toBitmap()
-                            val dr: Drawable = BitmapDrawable(
-                                resources,
-                                bitmap?.let {
-                                    Bitmap.createScaledBitmap(
-                                        it,
-                                        (24.0f * resources.displayMetrics.density).toInt(),
-                                        (24.0f * resources.displayMetrics.density).toInt(),
-                                        true
-                                    )
-                                }
-                            )
-                            marker.icon = dr
-                            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                            mapView.overlays.add(marker)
-                            mapView.invalidate()
-                        }
+                        val d =
+                            ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, null)
+                        val bitmap = d?.toBitmap()
+                        val dr: Drawable = BitmapDrawable(
+                            resources,
+                            bitmap?.let {
+                                Bitmap.createScaledBitmap(
+                                    it,
+                                    (24.0f * resources.displayMetrics.density).toInt(),
+                                    (24.0f * resources.displayMetrics.density).toInt(),
+                                    true
+                                )
+                            }
+                        )
+                        marker.icon = dr
+                        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                        mapView.overlays.add(marker)
+                        mapView.invalidate()
+                        mapView.controller.zoomTo(20, 0)
                     })
             }
         }
@@ -275,6 +255,7 @@ fun AppBar(person: Person, backToList: () -> Unit) {
             ) {
                 Image(
                     contentDescription = null,
+                    contentScale = ContentScale.Fit,
                     painter = rememberAsyncImagePainter(
                         model = ImageRequest
                             .Builder(LocalContext.current)
