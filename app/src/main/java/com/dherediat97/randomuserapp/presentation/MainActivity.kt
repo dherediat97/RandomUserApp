@@ -2,44 +2,22 @@ package com.dherediat97.randomuserapp.presentation
 
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.navigation.NavController
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavOptionsBuilder
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.dherediat97.randomuserapp.presentation.peopledetail.PersonDetailScreen
-import com.dherediat97.randomuserapp.presentation.peopledetail.PersonDetailViewModel
 import com.dherediat97.randomuserapp.presentation.peoplelist.PersonListScreen
-import com.dherediat97.randomuserapp.ui.theme.Black
+import com.dherediat97.randomuserapp.presentation.peoplelist.PersonListViewModel
 import com.dherediat97.randomuserapp.ui.theme.RandomUserAppTheme
-import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinContext
 import org.osmdroid.config.Configuration
 
@@ -55,6 +33,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        )
         val ctx = applicationContext
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx))
         Configuration.getInstance().userAgentValue = "RandomUserApp"
@@ -65,9 +47,10 @@ class MainActivity : ComponentActivity() {
 fun NavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    startDestination: String = Screen.Main.createRoute(),
-    detailViewModel: PersonDetailViewModel = koinViewModel(),
+    startDestination: String = Screen.Main.createRoute()
 ) {
+    val myViewModel: PersonListViewModel = viewModel()
+
     NavHost(
         modifier = modifier,
         navController = navController,
@@ -75,75 +58,32 @@ fun NavHost(
     ) {
         composable(NavArgs.Main.key) {
             PersonListScreen(
-                onNavigatePerson = {
-                    detailViewModel.addPerson(it)
-                    navController.navigate(Screen.Detail.createRoute()) {
-                        popUpTo("/") {
-                            inclusive = true
-                        }
-                    }
+                viewModel = myViewModel,
+                onNavigatePerson = { person ->
+                    navController.navigate(Screen.Detail.createRoute(person))
                 },
             )
         }
-        composable(NavArgs.PersonDetail.key) {
-            PersonDetailScreen()
+        composable(
+            NavArgs.PersonDetail.key,
+            arguments = listOf(navArgument("personEmail") {
+                type = NavType.StringType
+            })
+        ) { backStackEntry ->
+            PersonDetailScreen(
+                viewModel = myViewModel,
+                personEmail = backStackEntry.arguments?.getString("personEmail")!!,
+                backToList = {
+                    navController.navigateUp()
+                })
         }
     }
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar() {
     val navController = rememberNavController()
 
-    var showTopBar by rememberSaveable { mutableStateOf(true) }
-
-    showTopBar = when (navController.currentBackStackEntry?.destination?.route) {
-        NavArgs.Main.key -> true
-        NavArgs.PersonDetail.key -> false
-        else -> true
-    }
-
-    Scaffold(
-        topBar = {
-            if (showTopBar) {
-                TopAppBar(
-                    actions = {
-                        Icon(
-                            Icons.Rounded.MoreVert,
-                            contentDescription = "icon options menu",
-                            tint = Black
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            navController.navigateUp()
-                        }) {
-                            Icon(
-                                Icons.Rounded.ArrowBack,
-                                contentDescription = "icon back button",
-                                tint = Black
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.smallTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background,
-                        titleContentColor = MaterialTheme.colorScheme.primary,
-                    ),
-                    title = {
-                        Text("CONTACTOS", fontWeight = FontWeight.Bold)
-                    },
-                )
-            }
-        },
-    ) { innerPadding ->
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding), color = MaterialTheme.colorScheme.background
-        ) {
-            NavHost(navController)
-        }
-    }
+    NavHost(navController = navController)
 }

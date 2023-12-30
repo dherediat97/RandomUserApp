@@ -2,7 +2,6 @@ package com.dherediat97.randomuserapp
 
 import android.app.Application
 import com.dherediat97.randomuserapp.di.repositoriesModule
-import com.dherediat97.randomuserapp.di.viewModelsModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidFileProperties
 import org.koin.android.ext.koin.androidLogger
@@ -15,7 +14,7 @@ class RandomUserApp : Application() {
         startKoin {
             androidLogger()
             androidContext(this@RandomUserApp)
-            modules(viewModelsModule, repositoriesModule)
+            modules(repositoriesModule)
         }
     }
 }

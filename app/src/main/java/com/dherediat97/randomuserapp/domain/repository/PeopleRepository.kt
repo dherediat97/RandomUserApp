@@ -7,13 +7,9 @@ class PeopleRepository {
 
     private val peopleService = NetworkUtil.peopleService
 
-    suspend fun getMultiplePerson(results: Number): List<Person> {
+    suspend fun getMultiplePerson(results: Number): MutableList<Person> {
         val responseMultiplePeople = peopleService.getMultiplePerson(results)
         return responseMultiplePeople.results
     }
 
-    suspend fun getSinglePerson(name: String): Person {
-        val responseSinglePerson = peopleService.getSinglePerson(name)
-        return responseSinglePerson.results[0]
-    }
 }
