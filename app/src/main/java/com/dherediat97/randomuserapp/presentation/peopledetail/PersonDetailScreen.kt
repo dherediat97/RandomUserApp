@@ -161,7 +161,7 @@ fun PersonDetails(person: Person) {
             )
             //Because the API is 100% random values, some coordinates are outside the natural range
             var personCoordinates = GeoPoint(
-                person.location!!.coordinates.latitude.toDouble(),
+                person.location.coordinates.latitude.toDouble(),
                 person.location.coordinates.longitude.toDouble()
             )
 

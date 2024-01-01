@@ -15,6 +15,5 @@ data class Location(
 
 //Internal Objects
 data class Street(val number: Int, val name: String)
-
 data class Coordinates(val latitude: String, val longitude: String)
 data class Timezone(val offset: String, val description: String)

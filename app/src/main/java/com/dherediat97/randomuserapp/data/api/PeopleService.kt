@@ -13,6 +13,7 @@ interface PeopleService {
         @Query("results") results: Number,
         @Query("page") page: Number = 1,
         @Query("nat") nat: String = "es",
+        @Query("exc") exc: String = "login,id,dob"
     ): ResponseMultiplePeople
 
 }

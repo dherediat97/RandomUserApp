@@ -17,6 +17,7 @@ import androidx.navigation.navArgument
 import com.dherediat97.randomuserapp.presentation.peopledetail.PersonDetailScreen
 import com.dherediat97.randomuserapp.presentation.peoplelist.PersonListScreen
 import com.dherediat97.randomuserapp.presentation.peoplelist.PersonListViewModel
+import com.dherediat97.randomuserapp.presentation.search.SearchScreen
 import com.dherediat97.randomuserapp.ui.theme.RandomUserAppTheme
 import org.koin.compose.KoinContext
 import org.osmdroid.config.Configuration
@@ -49,7 +50,7 @@ fun NavHost(
     modifier: Modifier = Modifier,
     startDestination: String = Screen.Main.createRoute()
 ) {
-    val myViewModel: PersonListViewModel = viewModel()
+    val personListViewModel: PersonListViewModel = viewModel()
 
     NavHost(
         modifier = modifier,
@@ -58,7 +59,10 @@ fun NavHost(
     ) {
         composable(NavArgs.Main.key) {
             PersonListScreen(
-                viewModel = myViewModel,
+                viewModel = personListViewModel,
+                onFilterPerson = { personList ->
+                    navController.navigate(Screen.Search.createRoute(personList))
+                },
                 onNavigatePerson = { person ->
                     navController.navigate(Screen.Detail.createRoute(person))
                 },
@@ -71,10 +75,20 @@ fun NavHost(
             })
         ) { backStackEntry ->
             PersonDetailScreen(
-                viewModel = myViewModel,
+                viewModel = personListViewModel,
                 personEmail = backStackEntry.arguments?.getString("personEmail")!!,
                 backToList = {
                     navController.navigateUp()
+                })
+        }
+
+        composable(NavArgs.Search.key) { backStackEntry ->
+            SearchScreen(viewModel = personListViewModel,
+                onPersonList = {
+                    navController.navigateUp()
+                },
+                onNavigatePerson = { person ->
+                    navController.navigate(Screen.Detail.createRoute(person))
                 })
         }
     }
