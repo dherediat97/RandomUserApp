@@ -12,7 +12,7 @@ sealed class Screen(val route: String) {
     }
 
     object Search : Screen(NavArgs.Search.key) {
-        fun createRoute(personList: List<Person>) = "search/"
+        fun createRoute() = "search/"
     }
 }
 

@@ -8,12 +8,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -43,6 +46,7 @@ import com.dherediat97.randomuserapp.domain.model.Person
 import com.dherediat97.randomuserapp.presentation.peoplecard.PersonCardItem
 import com.dherediat97.randomuserapp.presentation.peoplelist.PersonListViewModel
 import com.dherediat97.randomuserapp.ui.theme.Black
+import com.dherediat97.randomuserapp.ui.theme.Grey
 import com.dherediat97.randomuserapp.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -81,14 +85,13 @@ fun SearchScreen(
                 .padding(
                     top = innerPadding.calculateTopPadding(),
                     start = 8.dp,
-                    end = 8.dp
+                    end = 8.dp,
+                    bottom = 24.dp
                 )
         ) {
             Scaffold { paddingValues ->
                 SearchBar(
-                    colors = SearchBarDefaults.colors(
-                        containerColor = White,
-                    ),
+                    colors = SearchBarDefaults.colors(containerColor = White, dividerColor = White),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = paddingValues.calculateTopPadding()),
@@ -138,18 +141,32 @@ fun SearchScreen(
                                     tint = if (searchByNameEnabled) White else Black,
                                     contentDescription = null
                                 )
-                            }, label = { Text("Por nombre") })
-
-                            FilterChip(selected = searchByEmailEnabled, onClick = {
-                                searchByEmailEnabled = true
-                                searchByNameEnabled = false
-                            }, leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Email,
-                                    tint = if (searchByEmailEnabled) White else Black,
-                                    contentDescription = null
+                            }, label = {
+                                Text(
+                                    "Por nombre", color =
+                                    if (searchByNameEnabled) White else Black
                                 )
-                            }, label = { Text("Por email") })
+                            })
+
+                            FilterChip(
+                                selected = searchByEmailEnabled,
+                                onClick = {
+                                    searchByEmailEnabled = true
+                                    searchByNameEnabled = false
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Email,
+                                        tint = if (searchByEmailEnabled) White else Black,
+                                        contentDescription = null
+                                    )
+                                },
+                                label = {
+                                    Text(
+                                        "Por email",
+                                        color = if (searchByEmailEnabled) White else Black
+                                    )
+                                })
                         }
                         if (!data.isLoading)
                             LazyColumn(modifier = Modifier

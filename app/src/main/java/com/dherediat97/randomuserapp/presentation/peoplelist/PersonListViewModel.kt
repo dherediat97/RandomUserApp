@@ -83,7 +83,10 @@ class PersonListViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             _searchState.update { it.copy(isLoading = true) }
             val personsFindByName: List<Person> = uiState.value.personList.filter { person ->
-                person.name.last.contains(name, true) || person.name.first.contains(name, true)
+                person.name.last.contains(
+                    name.trim(),
+                    true
+                ) || person.name.first.contains(name.trim(), true)
             }
 
             _searchState.update {

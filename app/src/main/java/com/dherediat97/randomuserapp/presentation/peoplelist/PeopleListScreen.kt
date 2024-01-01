@@ -30,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,12 +44,10 @@ fun PersonListScreen(
     paddingValues: PaddingValues = PaddingValues(),
     viewModel: PersonListViewModel,
     onNavigatePerson: (Person) -> Unit,
-    onFilterPerson: (List<Person>) -> Unit,
+    onFilterPerson: () -> Unit,
 ) {
     val data by viewModel.uiState.collectAsState()
-
     val listState = rememberLazyListState()
-
 
     LaunchedEffect(listState.canScrollForward) {
         if (data.personList.size <= viewModel.MAX_RESULTS_API_SIZE)
@@ -57,8 +56,8 @@ fun PersonListScreen(
 
     Scaffold(modifier = Modifier.padding(top = 24.dp), topBar = {
         TopAppBar(actions = {
-            IconButton(onClick = {
-                onFilterPerson(data.personList)
+            IconButton(modifier = Modifier.testTag("filterOption"), onClick = {
+                onFilterPerson()
             }) {
                 Icon(
                     Icons.Rounded.MoreVert,
@@ -74,7 +73,7 @@ fun PersonListScreen(
                     tint = Black
                 )
             }
-        }, colors = TopAppBarDefaults.smallTopAppBarColors(
+        }, colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
             titleContentColor = MaterialTheme.colorScheme.primary,
         ), title = {
@@ -90,7 +89,9 @@ fun PersonListScreen(
             if (!data.isLoading) {
                 val items by remember { mutableStateOf(data.personList) }
 
-                LazyColumn(modifier = Modifier.fillMaxWidth(),
+                LazyColumn(modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("listPerson"),
                     state = listState,
                     contentPadding = PaddingValues(
                         start = 24.dp,
@@ -98,7 +99,6 @@ fun PersonListScreen(
                         end = 24.dp,
                         bottom = 24.dp
                     ),
-
                     content = {
                         items(items) { person ->
                             PersonCardItem(person = person, onNavigatePerson = onNavigatePerson)
@@ -106,7 +106,7 @@ fun PersonListScreen(
                     })
             } else {
                 Column(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().testTag("loadingProgress"),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {

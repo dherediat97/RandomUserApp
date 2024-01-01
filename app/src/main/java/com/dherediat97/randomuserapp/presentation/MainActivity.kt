@@ -30,16 +30,17 @@ class MainActivity : ComponentActivity() {
         setContent {
             KoinContext {
                 RandomUserAppTheme {
-                    TopAppBar()
+                    RandomUserApp()
                 }
             }
         }
+        //UI Without limits
         window.setFlags(
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         )
-        val ctx = applicationContext
-        Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx))
+        //Config need for open street maps
+        Configuration.getInstance().load(applicationContext, PreferenceManager.getDefaultSharedPreferences(applicationContext))
         Configuration.getInstance().userAgentValue = "RandomUserApp"
     }
 }
@@ -52,6 +53,7 @@ fun NavHost(
 ) {
     val personListViewModel: PersonListViewModel = viewModel()
 
+    //Main Composable Screen
     NavHost(
         modifier = modifier,
         navController = navController,
@@ -60,14 +62,18 @@ fun NavHost(
         composable(NavArgs.Main.key) {
             PersonListScreen(
                 viewModel = personListViewModel,
-                onFilterPerson = { personList ->
-                    navController.navigate(Screen.Search.createRoute(personList))
+                //For navigate to the search screen
+                onFilterPerson = {
+                    navController.navigate(Screen.Search.createRoute())
                 },
+                //For navigate to the detail screen of the person clicked
                 onNavigatePerson = { person ->
                     navController.navigate(Screen.Detail.createRoute(person))
                 },
             )
         }
+
+        //Detail Person Screen
         composable(
             NavArgs.PersonDetail.key,
             arguments = listOf(navArgument("personEmail") {
@@ -82,7 +88,8 @@ fun NavHost(
                 })
         }
 
-        composable(NavArgs.Search.key) { backStackEntry ->
+        //Search Screen
+        composable(NavArgs.Search.key) {
             SearchScreen(viewModel = personListViewModel,
                 onPersonList = {
                     navController.navigateUp()
@@ -96,7 +103,7 @@ fun NavHost(
 
 
 @Composable
-fun TopAppBar() {
+fun RandomUserApp() {
     val navController = rememberNavController()
 
     NavHost(navController = navController)
