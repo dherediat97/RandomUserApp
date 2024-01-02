@@ -207,8 +207,8 @@ fun PersonDetails(person: Person) {
                         marker.icon = dr
                         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                         mapView.overlays.add(marker)
+                        mapView.controller.zoomTo(18, 0)
                         mapView.invalidate()
-                        mapView.controller.zoomTo(20, 0)
                     })
             }
         }
