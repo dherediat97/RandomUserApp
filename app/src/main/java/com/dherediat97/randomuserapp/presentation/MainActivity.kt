@@ -21,12 +21,23 @@ import com.dherediat97.randomuserapp.presentation.search.SearchScreen
 import com.dherediat97.randomuserapp.ui.theme.RandomUserAppTheme
 import org.koin.compose.KoinContext
 import org.osmdroid.config.Configuration
+import org.osmdroid.library.BuildConfig
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        //UI Without limits
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        )
+
+        //Config need for open street maps
+        val ctx = applicationContext
+        Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx))
+        Configuration.getInstance().userAgentValue = BuildConfig.APPLICATION_ID
         setContent {
             KoinContext {
                 RandomUserAppTheme {
@@ -34,14 +45,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        //UI Without limits
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-        )
-        //Config need for open street maps
-        Configuration.getInstance().load(applicationContext, PreferenceManager.getDefaultSharedPreferences(applicationContext))
-        Configuration.getInstance().userAgentValue = "RandomUserApp"
     }
 }
 
